@@ -60,6 +60,50 @@ describe('POST /api/timers', () => {
   });
 });
 
+describe('GET /api/timers/stats/monthly', () => {
+  it('returns per-month aggregates for the user', async () => {
+    pool.query.mockResolvedValueOnce([
+      [{ month: '2026-08', total_sessions: 4, avg_seconds: 300, unlinked_sessions: 1 }]
+    ]);
+    const res = await request(app).get('/api/timers/stats/monthly').set('Authorization', authHeader());
+    expect(res.status).toBe(200);
+    expect(res.body[0].month).toBe('2026-08');
+    expect(pool.query.mock.calls[0][1]).toEqual([1]);
+  });
+});
+
+describe('GET /api/timers/stats/patterns', () => {
+  it('returns the patterns that have sessions, including unlinked', async () => {
+    pool.query.mockResolvedValueOnce([
+      [{ pattern_id: 7, pattern_name: 'Elk Hair Caddis', total_sessions: 3 },
+       { pattern_id: null, pattern_name: '未关联款式', total_sessions: 2 }]
+    ]);
+    const res = await request(app).get('/api/timers/stats/patterns').set('Authorization', authHeader());
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(2);
+  });
+});
+
+describe('GET /api/timers/stats/:patternId/trend', () => {
+  it('returns the monthly trend for a linked pattern', async () => {
+    pool.query.mockResolvedValueOnce([
+      [{ month: '2026-07', total_sessions: 2, avg_seconds: 1800, min_seconds: 1600, max_seconds: 2000 }]
+    ]);
+    const res = await request(app).get('/api/timers/stats/7/trend').set('Authorization', authHeader());
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[0][1]).toEqual([1, '7']);
+    expect(pool.query.mock.calls[0][0]).toContain('pattern_id = ?');
+  });
+
+  it('scopes to unlinked sessions when patternId is "none"', async () => {
+    pool.query.mockResolvedValueOnce([[]]);
+    const res = await request(app).get('/api/timers/stats/none/trend').set('Authorization', authHeader());
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[0][1]).toEqual([1]);
+    expect(pool.query.mock.calls[0][0]).toContain('pattern_id IS NULL');
+  });
+});
+
 describe('GET /api/timers/stats/:patternId', () => {
   it('returns aggregate stats for the user + pattern', async () => {
     pool.query.mockResolvedValueOnce([
