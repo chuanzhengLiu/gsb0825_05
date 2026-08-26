@@ -51,6 +51,35 @@ router.post('/', authenticateToken, async (req, res, next) => {
   }
 });
 
+// 按月统计（可用 ?pattern_id= 筛选单款式）
+// 注意：必须注册在 /stats/:patternId 之前，否则 "monthly" 会被当作 patternId
+router.get('/stats/monthly', authenticateToken, async (req, res, next) => {
+  try {
+    const { pattern_id } = req.query;
+    const params = [req.user.userId];
+    let where = 'WHERE user_id = ?';
+    if (pattern_id) {
+      where += ' AND pattern_id = ?';
+      params.push(pattern_id);
+    }
+    const [rows] = await pool.query(
+      `SELECT
+        DATE_FORMAT(created_at, '%Y-%m') as month,
+        COUNT(*) as total_sessions,
+        SUM(CASE WHEN pattern_id IS NULL THEN 1 ELSE 0 END) as unlinked_sessions,
+        AVG(duration_seconds) as avg_seconds
+       FROM tying_sessions
+       ${where}
+       GROUP BY month
+       ORDER BY month ASC`,
+      params
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // 获取某款式的历史统计
 router.get('/stats/:patternId', authenticateToken, async (req, res, next) => {
   try {
