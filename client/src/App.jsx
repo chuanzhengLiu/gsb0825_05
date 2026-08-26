@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { Feather, Home, Box, Clock, Heart, Image as ImageIcon, User, LogOut, Menu, X } from 'lucide-react';
+import { Feather, Home, Box, Clock, Heart, Image as ImageIcon, User, LogOut, Menu, X, BarChart3 } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,6 +8,7 @@ import Patterns from './pages/Patterns';
 import PatternDetail from './pages/PatternDetail';
 import Materials from './pages/Materials';
 import TimerPage from './pages/TimerPage';
+import TimerStats from './pages/TimerStats';
 import Favorites from './pages/Favorites';
 import Gallery from './pages/Gallery';
 import Profile from './pages/Profile';
@@ -43,6 +44,7 @@ function Layout() {
             <NavLink to="/" icon={Home}>毛钩库</NavLink>
             <NavLink to="/materials" icon={Box}>材料库存</NavLink>
             <NavLink to="/timer" icon={Clock}>计时器</NavLink>
+            <NavLink to="/timer/stats" icon={BarChart3}>统计</NavLink>
             <NavLink to="/favorites" icon={Heart}>收藏夹</NavLink>
             <NavLink to="/gallery" icon={ImageIcon}>社区</NavLink>
           </nav>
@@ -73,6 +75,7 @@ function Layout() {
             <NavLink to="/" icon={Home}>毛钩库</NavLink>
             <NavLink to="/materials" icon={Box}>材料库存</NavLink>
             <NavLink to="/timer" icon={Clock}>计时器</NavLink>
+            <NavLink to="/timer/stats" icon={BarChart3}>统计</NavLink>
             <NavLink to="/favorites" icon={Heart}>收藏夹</NavLink>
             <NavLink to="/gallery" icon={ImageIcon}>社区</NavLink>
             {user && <NavLink to="/profile" icon={User}>个人中心</NavLink>}
@@ -91,6 +94,7 @@ function Layout() {
           <Route path="/patterns/:slug" element={<PatternDetail />} />
           <Route path="/materials" element={<Materials />} />
           <Route path="/timer" element={<TimerPage />} />
+          <Route path="/timer/stats" element={<TimerStats />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/profile" element={<Profile />} />
