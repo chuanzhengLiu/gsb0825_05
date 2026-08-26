@@ -1,0 +1,26 @@
+{
+  "name": "flytie-atlas",
+  "version": "1.0.0",
+  "description": "FlyTie Atlas - 飞钓绑制图谱 Web 应用",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "setup": "cd server && npm install && cd ../client && npm install",
+    "init-db": "cd server && npm run init-db"
+  },
+  "keywords": [
+    "fly-fishing",
+    "fly-tying",
+    "atlas",
+    "react",
+    "express",
+    "mysql"
+  ],
+  "author": "Claude",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

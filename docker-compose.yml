@@ -1,0 +1,56 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: flytie-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: flytie_atlas
+      MYSQL_USER: flytie
+      MYSQL_PASSWORD: flytie123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  server:
+    build: ./server
+    container_name: flytie-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: flytie
+      DB_PASSWORD: flytie123
+      DB_NAME: flytie_atlas
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      PORT: 3001
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "3001:3001"
+    volumes:
+      - uploads_data:/app/uploads
+    restart: unless-stopped
+
+  client:
+    build: ./client
+    container_name: flytie-client
+    depends_on:
+      - server
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  uploads_data:
